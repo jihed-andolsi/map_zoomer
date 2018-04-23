@@ -1,6 +1,6 @@
 <html>
     <head>
-        <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
         <title>PC</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -53,20 +53,31 @@
                         sprites: [
                             {"name": "background", "url": "./assets/pictures/carte_5.jpg", "x": 0, "y": 0},
                         ],
+                        locations: [
+                            {"name": "GAMMARTH", "point":  {x: 399, y: 307}},
+                            {"name": "MARSA", "point":  {x: 302, y:  228}},
+                            {"name": "SITE ARCHEOLOGUE DE CARTHAGE", "point": {x: 263, y: 150}}
+                        ],
                         widthExtent: function(width){
-                            return width
+                            return width;
                         },
                         heightExtent: function(height){
-                            return height
+                            return height;
+                        },
+                        widthExtentMaximum: function(width){
+                            return width + 500;
+                        },
+                        heightExtentMaximum: function(height){
+                            return height + 100;
                         },
                         initialData: {
                             "k":1,
-                            "x":0,
+                            "x":110,
                             "y":0
                         },
                         initialDataMobile: {
                             "k":1,
-                            "x":0,
+                            "x":110,
                             "y":0
                         },
                         defaultColor: 0xc10000,

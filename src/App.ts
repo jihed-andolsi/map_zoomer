@@ -2,10 +2,14 @@ require("./Assets/css/_custom.scss");
 require("./Assets/css/main.css");
 let $ = (window as any).$;
 import * as PIXI from "pixi.js";
+let tweenManager = require("pixi-tween");
 import * as d3 from "d3";
 import Button from "./Tools/Button";
 import LoaderText from "./Tools/LoaderText";
 import {isMobile} from "./Tools/DeviceDetect";
+
+
+
 class Zoomer extends PIXI.Application {
     private Customloader = new PIXI.loaders.Loader();
     private Container = new PIXI.Container();
@@ -42,6 +46,9 @@ class Zoomer extends PIXI.Application {
     private MultipleBackground = [];
     private isZooming: boolean = false;
     private options: object = [];
+    private locations/*: object[]*/ = [];
+    private locationsAlpha = .5;
+    private locationsMakeAlphaBigger: boolean = true;
 
     constructor(width, height, options) {
         super(width, height, options);
@@ -56,14 +63,14 @@ class Zoomer extends PIXI.Application {
                 [width, height] = [height, width];
             }
         }
-        this.width = width;
-        this.height = height;
+        (this.options as any).width = width;
+        (this.options as any).height = height;
         this.Container.zIndex = 0;
         this.ContainerButtons.zIndex = 1;
         this.width = (this.options as any).width;
         this.height = (this.options as any).height;
-        this.widthExtentMaximum = (this.options as any).widthExtent(this.width);
-        this.heightExtentMaximum = (this.options as any).heightExtent(this.height);
+        this.widthExtentMaximum = (this.options as any).widthExtentMaximum(this.width);
+        this.heightExtentMaximum = (this.options as any).heightExtentMaximum(this.height);
         this.selector = (this.options as any).selectorId;
         this.isMobile = isMobile();
         this.appendView();
@@ -100,14 +107,14 @@ class Zoomer extends PIXI.Application {
         $this.Customloader.onComplete.add((e) => {
             $this.stage.removeChild(text);
             $this.addBackground();
+            $this.addLocations();
             $this.addButtons();
             $this.initZoomAction();
             $this.addPowredBy();
             $this.resizeCanvas();
-
+            $this.addTicker();
         });
     }
-
     private addBackground() {
         const $this = this;
         if (($this.sprites as any).background.interactive) {
@@ -115,6 +122,7 @@ class Zoomer extends PIXI.Application {
         }
         ($this.sprites as any).background.x = 0;
         ($this.sprites as any).background.y = 0;
+        // ($this.sprites as any).background.anchor = new PIXI.Point(0.5, 0.5);
         ($this.sprites as any).background.interactive = true;
         ($this.sprites as any).background.filters = [this.filterBackground];
         // const filter = new filters.ColorMatrixFilter();
@@ -127,6 +135,9 @@ class Zoomer extends PIXI.Application {
                 const xD3 = $this.getD3X(x);
                 const yD3 = $this.getD3Y(y);
                 $this.newGraphic.push([xD3, yD3]);
+
+                console.dir($this.newGraphic);
+
                 $this.Container.removeChild($this.newGraphicObj[$this._counterGraphic]);
                 $this.newGraphicObj[$this._counterGraphic] = $this.createGraph($this.newGraphic);
                 $this.Container.addChild($this.newGraphicObj[$this._counterGraphic]);
@@ -135,6 +146,87 @@ class Zoomer extends PIXI.Application {
         $this.Container.addChild(($this.sprites as any).background);
     }
 
+    private addLocations(){
+        let $this = this;
+        (this.options as any).locations.map((e) => {
+            this.drawLocation(e);
+            // let [x, y] = e.point;
+            // $this.drawCircle(x, y);
+        });
+    }
+
+    private drawLocation(location){
+        const $this = this;
+        let {x, y} = location.point;
+        let y_difference = 30;
+        const locationPoint = new PIXI.Graphics();
+        locationPoint.lineStyle(2, 0xd1a9a4);
+        locationPoint.beginFill(0xd1a9a4, 1);
+        locationPoint.drawCircle(x, -y_difference, 5);
+        locationPoint.endFill();
+        locationPoint.interactive = true;
+        locationPoint.buttonMode = true;
+
+        const locationBigPoint = new PIXI.Graphics();
+        locationBigPoint.lineStyle(0, 0xffffff);
+        locationBigPoint.beginFill(0xffffff, .7);
+        locationBigPoint.drawCircle(x, -y_difference, 18);
+        locationBigPoint.endFill();
+        locationBigPoint.interactive = true;
+        locationBigPoint.alpha = .5;
+        locationBigPoint.buttonMode = true;
+        let style = new PIXI.TextStyle({
+            fontFamily: "Arial", // Font Family
+            fontSize: 14, // Font Size
+            // fontStyle: "italic",// Font Style
+            // fontWeight: "bold", // Font Weight
+            fill: ["#ffffff"/*, "#F8A9F9"*/], // gradient
+            // stroke: "#ffffff",
+            // strokeThickness: 5,
+            // dropShadow: true,
+            // dropShadowColor: "#000000",
+            // dropShadowBlur: 4,
+            // dropShadowAngle: Math.PI / 6,
+            // dropShadowDistance: 6,
+            wordWrap: true,
+            wordWrapWidth: 200,
+            align : 'center'
+        });
+        let text = new PIXI.Text(location.name, "arial");
+        text.anchor = new PIXI.Point(0.5, 0.5);
+        text.x = x;
+        text.y = -y_difference;
+        let y_text = 0;
+        if(location.name.length > 16){
+            y_text = y - 40;
+        } else {
+            y_text = y - 30;
+        }
+        text.style = style;
+        text.interactive = true;
+        text.buttonMode = true;
+
+        $this.Container.addChild(locationBigPoint);
+        $this.Container.addChild(locationPoint);
+        $this.Container.addChild(text);
+        $this.locations.push([locationBigPoint, locationPoint, text]);
+
+
+        this.tweenLocations(locationBigPoint, {y: -y_difference }, {y: y+y_difference});
+        this.tweenLocations(locationPoint, {y: -y_difference }, {y: y+y_difference});
+        this.tweenLocations(text, { y: -y_difference },{ y: y_text });
+    }
+    private tweenLocations(obj, pointFrom, pointTo){
+        console.log(pointFrom);
+        console.log(pointTo);
+        const tween = PIXI.tweenManager.createTween(obj);
+        tween.from(pointFrom).to(pointTo)
+        tween.time = 500;
+        // tween.repeat = 10;
+        tween.on('start', () => { console.log('tween started') });
+        // tween.on('repeat', ( loopCount ) => { console.log('loopCount: ' + loopCount) });
+        tween.start();
+    }
     private addPowredBy() {
         const $this = this;
         let style = new PIXI.TextStyle({
@@ -170,7 +262,7 @@ class Zoomer extends PIXI.Application {
         $this.heightCanvas = $this.canvas.property("height");
 
         $this.zoomHandler = d3.zoom()
-            .scaleExtent([1, 8])
+            .scaleExtent([1, 3])
             .translateExtent([[0, 0], [$this.widthExtentMaximum, $this.heightExtentMaximum]])
             .on("start", () => {
                 return $this.startZoomActions($this);
@@ -219,6 +311,8 @@ class Zoomer extends PIXI.Application {
         const y = d3.event.transform.y;
         const k = d3.event.transform.k;
         $this.zoomTrans = d3.event.transform;
+        // console.dir($this.zoomTrans);
+
         // console.dir(d3.event.transform);
         // let translate = "translate(" + d3.event.translate + ")";
         // let scale = "scale(" + d3.event.scale + ")";
@@ -236,7 +330,7 @@ class Zoomer extends PIXI.Application {
     }
 
 
-    private drawCircle(x, y) {
+    /*private drawCircle(x, y) {
         const $this = this;
         const c = new PIXI.Graphics();
         c.lineStyle(2, 0xFF00FF);
@@ -244,7 +338,7 @@ class Zoomer extends PIXI.Application {
         c.endFill();
         $this.Container.addChild(c);
         $this.Circls.push(c);
-    }
+    }*/
 
     private addButtons() {
         const $this = this;
@@ -373,6 +467,37 @@ class Zoomer extends PIXI.Application {
             return $this.rendererResize($this);
         });
     };
+
+    private addTicker(){
+        let $this = this;
+        // Listen for animate update
+        ($this as any).ticker.add(function(delta) {
+            // console.log(delta);
+            // just for fun, let's rotate mr rabbit a little
+            // delta is 1 if running at 100% performance
+            // creates frame-independent transformation
+            // bunny.rotation += 0.1 * delta;
+            let alphaTick = .01;
+            if($this.locationsAlpha + alphaTick > 1){
+                $this.locationsMakeAlphaBigger = false;
+            }
+            if($this.locationsAlpha - alphaTick < .5){
+                $this.locationsMakeAlphaBigger = true;
+            }
+            if($this.locationsMakeAlphaBigger){
+                $this.locationsAlpha += alphaTick;
+            } else {
+                $this.locationsAlpha -= alphaTick;
+            }
+            let alpha = $this.locationsAlpha;
+            $this.locations.map((e) => {
+                let [locationBigPoint, locationPoint] = e;
+                locationBigPoint.alpha = alpha;
+            });
+            PIXI.tweenManager.update();
+
+        });
+    }
 
     public rendererResize($this) {
         if (isMobile() || (this.options as any).fullSizeShow) {
