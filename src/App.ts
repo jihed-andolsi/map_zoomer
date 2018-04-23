@@ -168,7 +168,7 @@ class Zoomer extends PIXI.Application {
         locationPoint.buttonMode = true;
 
         const locationBigPoint = new PIXI.Graphics();
-        locationBigPoint.lineStyle(0, 0xffffff);
+        locationBigPoint.lineStyle(0, 0xffffff, .7);
         locationBigPoint.beginFill(0xffffff, .7);
         locationBigPoint.drawCircle(x, -y_difference, 18);
         locationBigPoint.endFill();
@@ -217,8 +217,6 @@ class Zoomer extends PIXI.Application {
         this.tweenLocations(text, { y: -y_difference },{ y: y_text });
     }
     private tweenLocations(obj, pointFrom, pointTo){
-        console.log(pointFrom);
-        console.log(pointTo);
         const tween = PIXI.tweenManager.createTween(obj);
         tween.from(pointFrom).to(pointTo)
         tween.time = 500;
@@ -481,7 +479,7 @@ class Zoomer extends PIXI.Application {
             if($this.locationsAlpha + alphaTick > 1){
                 $this.locationsMakeAlphaBigger = false;
             }
-            if($this.locationsAlpha - alphaTick < .5){
+            if($this.locationsAlpha - alphaTick < .2){
                 $this.locationsMakeAlphaBigger = true;
             }
             if($this.locationsMakeAlphaBigger){
