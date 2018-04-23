@@ -1,2 +1,2 @@
-# Picture zoomer and highlights drawer manager
-zoom and highlights big scale picture
+# Picture Map Zoomer and emplacement highlights
+Picture Map Zoomer and emplacement highlights
