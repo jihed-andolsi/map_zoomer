@@ -23,12 +23,9 @@ class Zoomer extends PIXI.Application {
     private newGraphic = [];
     private _counterGraphic: number = 0;
     private newGraphicObj = [];
-    private Circls = [];
     private zoomTrans = {x: 0, y: 0, k: .1};
     private startDrawing: boolean = false;
-    private backgroundClicked: boolean = false;
     private sprites: object = {};
-    // private zoomToBool: boolean = false;
     private view;
     private stage;
     private zoomHandler;
@@ -40,10 +37,7 @@ class Zoomer extends PIXI.Application {
     private heightCanvas = null;
     private D3Interval = null;
     private isMobile: boolean = false;
-    private _modeSearh: boolean = false;
-    private _graphicHovered: boolean = false;
     private PowredByText = null;
-    private MultipleBackground = [];
     private isZooming: boolean = false;
     private options: object = [];
     private locations/*: object[]*/ = [];
@@ -126,6 +120,8 @@ class Zoomer extends PIXI.Application {
         // ($this.sprites as any).background.anchor = new PIXI.Point(0.5, 0.5);
         ($this.sprites as any).background.interactive = true;
         ($this.sprites as any).background.filters = [this.filterBackground];
+
+
         // const filter = new filters.ColorMatrixFilter();
         //$this.removeColorFromSprite(($this.sprites as any).background);
         ($this.sprites as any).background.on("pointerdown", (e) => {
@@ -146,6 +142,7 @@ class Zoomer extends PIXI.Application {
         });
 
         ($this.sprites as any).background.mouseover = function () {
+            $this.addColorToBackground();
             return ($this.options as any).onMouseOverBackground(location);
         };
         ($this.sprites as any).background.mouseout = function() {
@@ -210,6 +207,7 @@ class Zoomer extends PIXI.Application {
         text.interactive = true;
         text.buttonMode = true;
         locationPoint.mouseover = function () {
+            $this.removeColorFromBackground();
             return ($this.options as any).onMouseOverLocation(location);
         }
         locationPoint.mouseout = function () {
@@ -537,28 +535,12 @@ class Zoomer extends PIXI.Application {
 
     private removeColorFromBackground() {
         const $this = this;
-        if ((this.options as any).backgroundMultiple) {
-            $this.MultipleBackground.map((element) => {
-                let [background] = element;
-                $this.removeColorFromSprite(background);
-            })
-        } else {
-            $this.removeColorFromSprite(($this.sprites as any).background);
-        }
+        $this.removeColorFromSprite(($this.sprites as any).background);
     }
 
     private addColorToBackground() {
-        console.log("addColorToBackground")
         const $this = this;
-        if ((this.options as any).backgroundMultiple) {
-            $this.MultipleBackground.map((element) => {
-                let [background] = element;
-                $this.removeFiltersFromSprite(background);
-            })
-        } else {
-            $this.removeFiltersFromSprite(($this.sprites as any).background);
-        }
-
+        $this.removeFiltersFromSprite(($this.sprites as any).background);
     }
 
     private removeColorFromSprite(sprite) {
@@ -567,14 +549,6 @@ class Zoomer extends PIXI.Application {
 
     private removeFiltersFromSprite(sprite) {
         this.filterBackground.reset();
-    }
-
-    get modeSearh(): boolean {
-        return this._modeSearh;
-    }
-
-    set modeSearh(value: boolean) {
-        this._modeSearh = value;
     }
 }
 
