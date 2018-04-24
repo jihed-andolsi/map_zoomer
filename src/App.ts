@@ -54,7 +54,7 @@ class Zoomer extends PIXI.Application {
         super(width, height, options);
 
     }
-    public init(options){
+    public init(options, callback){
         this.options = options;
         let [width, height] = (this.options as any).size;
         if (isMobile()) {
@@ -74,14 +74,14 @@ class Zoomer extends PIXI.Application {
         this.selector = (this.options as any).selectorId;
         this.isMobile = isMobile();
         this.appendView();
-        this.setup();
+        this.setup(callback);
     }
     private appendView() {
         const $this = this;
         document.getElementById($this.selector).appendChild($this.view);
     }
 
-    private setup() {
+    private setup(callback) {
         const $this = this;
         const s = {};
         const text = new LoaderText(($this as any).width, ($this as any).height);
@@ -113,6 +113,7 @@ class Zoomer extends PIXI.Application {
             $this.addPowredBy();
             $this.resizeCanvas();
             $this.addTicker();
+            callback();
         });
     }
     private addBackground() {
@@ -143,6 +144,13 @@ class Zoomer extends PIXI.Application {
                 $this.Container.addChild($this.newGraphicObj[$this._counterGraphic]);
             }
         });
+
+        ($this.sprites as any).background.mouseover = function () {
+            return ($this.options as any).onMouseOverBackground(location);
+        };
+        ($this.sprites as any).background.mouseout = function() {
+            return ($this.options as any).onMouseOutBackground(location);
+        }
         $this.Container.addChild(($this.sprites as any).background);
     }
 
@@ -205,7 +213,12 @@ class Zoomer extends PIXI.Application {
         text.style = style;
         text.interactive = true;
         text.buttonMode = true;
-
+        locationPoint.mouseover = function () {
+            return ($this.options as any).onMouseOverLocation(location);
+        }
+        locationPoint.mouseout = function () {
+            return ($this.options as any).onMouseOutLocation(location);
+        }
         $this.Container.addChild(locationBigPoint);
         $this.Container.addChild(locationPoint);
         $this.Container.addChild(text);
@@ -221,7 +234,7 @@ class Zoomer extends PIXI.Application {
         tween.from(pointFrom).to(pointTo)
         tween.time = 500;
         // tween.repeat = 10;
-        tween.on('start', () => { console.log('tween started') });
+        tween.on('start', () => { /*.log('tween started')*/ });
         // tween.on('repeat', ( loopCount ) => { console.log('loopCount: ' + loopCount) });
         tween.start();
     }
