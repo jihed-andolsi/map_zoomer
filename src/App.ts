@@ -202,15 +202,11 @@ class Zoomer extends PIXI.Application {
         });
         let text = new PIXI.Text(location.name, "arial");
         text.anchor = new PIXI.Point(0.5, 0.5);
-        text.x = x;
+        text.x = x + location.position.x;
         text.y = -y_difference;
-        let y_text = 0;
-        if(location.name.length > 16){
-            y_text = y - 40;
-        } else {
-            y_text = y - 30;
-        }
+        let y_text = y + location.position.y;
         text.style = style;
+
         text.interactive = true;
         text.buttonMode = true;
         locationPoint.mouseover = function () {
