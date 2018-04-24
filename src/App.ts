@@ -102,6 +102,7 @@ class Zoomer extends PIXI.Application {
             $this.stage.removeChild(text);
             $this.addBackground();
             $this.addLocations();
+            $this.addProject();
             $this.addButtons();
             $this.initZoomAction();
             $this.addPowredBy();
@@ -158,6 +159,11 @@ class Zoomer extends PIXI.Application {
             // let [x, y] = e.point;
             // $this.drawCircle(x, y);
         });
+    }
+    private addProject(){
+        let project = (this.options as any).project;
+        let graph = this.createGraph(project.coords);
+        this.Container.addChild(graph);
     }
 
     private drawLocation(location){

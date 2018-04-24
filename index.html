@@ -43,6 +43,29 @@
                         {"name": "MANOUBA", "point": {x: 1573, y: 96}, "position": {x: 0, y: -30}},
                         {"name": "RAOUED", "point": {x: 1029, y: 479}, "position": {x: 0, y: -30}},
                     ],
+                    project: {"name": "TunisBay", "coords": [
+                                [958.5084872092548, 690],
+                                [1031.5084872092548, 671.5],
+                                [1304.5084872092546, 680.5],
+                                [1398.0084872092546, 740.5],
+                                [1423.0084872092546, 774],
+                                [1431.5084872092546, 775.5],
+                                [1458.0084872092546, 764],
+                                [1462.0084872092546, 769.5],
+                                [1438.5084872092546, 779.5],
+                                [1417.5084872092546, 780],
+                                [1407.5084872092546, 781],
+                                [1359.5084872092546, 794.5],
+                                [1372.0084872092546, 830],
+                                [1355.5084872092546, 846.5],
+                                [1337.5084872092546, 844.0000000000001],
+                                [1326.5084872092546, 854.0000000000001],
+                                [1321.5084872092546, 867.5000000000001],
+                                [1347.5084872092546, 889.0000000000001],
+                                [1319.0084872092546, 905],
+                                [1086.5084872092548, 919.5],
+                        ]
+                    },
                     widthExtent: function(width){
                         return width;
                     },
@@ -53,7 +76,7 @@
                         return width + 500;
                     },
                     heightExtentMaximum: function(height){
-                        return height + 100;
+                        return height + 200;
                     },
                     initialData: {
                         "k":1,
@@ -66,7 +89,7 @@
                         "y":0
                     },
                     defaultColor: 0xc10000,
-                    showButtonPlans: false,
+                    showButtonPlans: true,
                     onMouseOverLocation: function(element){
                         // console.log('onMouseOverLocation');
                         $("#container canvas[title]").tooltip("option", "content", element.name);
