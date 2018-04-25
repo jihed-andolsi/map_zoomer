@@ -206,12 +206,12 @@ class Zoomer extends PIXI.Application {
         graph.interactive = true;
         graph.mouseover = function () {
             $this.removeColorFromBackground();
-            graph.alpha = .7;
+            graph.alpha = .9;
             return ($this.options as any).onMouseOverPoject(project);
         };
         graph.mouseout = function() {
             $this.addColorToBackground();
-            graph.alpha = .5;
+            graph.alpha = .7;
             return ($this.options as any).onMouseOutProject(project);
         };
         this.Container.addChild(graph);
