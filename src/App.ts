@@ -200,8 +200,20 @@ class Zoomer extends PIXI.Application {
         });
     }
     private addProject(){
+        const $this = this;
         let project = (this.options as any).project;
         let graph = this.createGraph(project.coords);
+        graph.interactive = true;
+        graph.mouseover = function () {
+            $this.removeColorFromBackground();
+            graph.alpha = .7;
+            return ($this.options as any).onMouseOverPoject(project);
+        };
+        graph.mouseout = function() {
+            $this.addColorToBackground();
+            graph.alpha = .5;
+            return ($this.options as any).onMouseOutProject(project);
+        };
         this.Container.addChild(graph);
     }
 

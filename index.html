@@ -113,7 +113,22 @@
                     },
                     onMouseOutBackground: function(element){
                         console.log('onMouseOutBackground');
-                    }
+                    },
+                    onMouseOverPoject: function(element){
+                        // console.log('onMouseOverLocation');
+
+                        $("#container_map canvas").tooltip({
+                            track: true,
+                            context: function () {
+                                return ' ';
+                            },
+                        }).tooltip("option", "content", element.name).tooltip( "enable" );
+                        $('.ui-tooltip').show();
+                    },
+                    onMouseOutProject: function(element){
+                        // console.log('onMouseOutLocation');
+                        $('.ui-tooltip').hide();
+                    },
                 }, function(){
                     // console.log("loaded");
                     $("#container_map canvas").addClass('row');
