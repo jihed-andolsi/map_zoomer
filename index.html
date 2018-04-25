@@ -22,6 +22,7 @@
                     fullSizeShow: false,
                     sprites: [
                         {"name": "background", "url": "./assets/pictures/carte_5.jpg", "x": 0, "y": 0},
+                        {"name": "guide", "url": "./assets/pictures/guide.png", "x": 0, "y": 0},
                     ],
 
                     locations: [
@@ -87,22 +88,31 @@
                         "x":0,
                         "y":0
                     },
-                    defaultColor: 0xba452b,
+                    showGuide: true,
+                    defaultColor: 0xd1a9a4,
+                    defaultOpacity: .8,
                     showButtonPlans: false,
                     onMouseOverLocation: function(element){
                         // console.log('onMouseOverLocation');
-                        $("#container_map canvas[title]").tooltip("option", "content", element.name);
+
+                        $("#container_map canvas").tooltip({
+                            track: true,
+                            context: function () {
+                                return ' ';
+                            },
+                        }).tooltip("option", "content", element.name).tooltip( "enable" );
                         $('.ui-tooltip').show();
                     },
                     onMouseOutLocation: function(element){
                         // console.log('onMouseOutLocation');
+                       $('.ui-tooltip').hide();
                     },
                     onMouseOverBackground: function(elemnt){
                         // console.log('onMouseOverBackground');
                         $('.ui-tooltip').hide();
                     },
                     onMouseOutBackground: function(element){
-                        // console.log('onMouseOutBackground');
+                        console.log('onMouseOutBackground');
                     }
                 }, function(){
                     // console.log("loaded");
@@ -110,12 +120,13 @@
                     $("#container_map canvas").attr('id', 'canvas-container');
                     $("#container_map canvas").css('margin', '0');
                     $("#container_map canvas").attr('title', ' ');
-                    $("#container_map canvas[title]").tooltip({
+                    $("#container_map canvas").tooltip({
                         track: true,
                         context: function () {
                             return ' ';
                         },
                     });
+                    $('.ui-tooltip').hide();
                 });
             })
         </script>

@@ -14,6 +14,7 @@ class Zoomer extends PIXI.Application {
     private Customloader = new PIXI.loaders.Loader();
     private Container = new PIXI.Container();
     private ContainerButtons = new PIXI.Container();
+    private ContainerGuide = new PIXI.Container();
     private filterBackground = new PIXI.filters.ColorMatrixFilter();
     private width: number;
     private height: number;
@@ -61,6 +62,8 @@ class Zoomer extends PIXI.Application {
         (this.options as any).height = height;
         this.Container.zIndex = 0;
         this.ContainerButtons.zIndex = 1;
+        this.ContainerGuide.zIndex = 2;
+
         this.width = (this.options as any).width;
         this.height = (this.options as any).height;
         this.widthExtentMaximum = (this.options as any).widthExtentMaximum(this.width);
@@ -101,6 +104,7 @@ class Zoomer extends PIXI.Application {
         $this.Customloader.onComplete.add((e) => {
             $this.stage.removeChild(text);
             $this.addBackground();
+            $this.addGuide();
             $this.addLocations();
             $this.addProject();
             $this.addButtons();
@@ -134,7 +138,7 @@ class Zoomer extends PIXI.Application {
                 const yD3 = $this.getD3Y(y);
                 $this.newGraphic.push([xD3, yD3]);
 
-                console.dir($this.newGraphic);
+                // console.dir($this.newGraphic);
 
                 $this.Container.removeChild($this.newGraphicObj[$this._counterGraphic]);
                 $this.newGraphicObj[$this._counterGraphic] = $this.createGraph($this.newGraphic);
@@ -148,8 +152,43 @@ class Zoomer extends PIXI.Application {
         };
         ($this.sprites as any).background.mouseout = function() {
             return ($this.options as any).onMouseOutBackground(location);
-        }
+        };
+        /*($this.sprites as any).background.mousemove = function () {
+            $this.addColorToBackground();
+            return ($this.options as any).onMouseMoveBackground(location);
+        };*/
         $this.Container.addChild(($this.sprites as any).background);
+    }
+
+    private addGuide(){
+        const $this = this;
+        if($this.options.hasOwnProperty('showGuide')){
+            if(($this.options as any).showGuide){
+                ($this.sprites as any).guide.x = $this.width/2;
+                ($this.sprites as any).guide.y = $this.height / 2;
+                ($this.sprites as any).guide.anchor = new PIXI.Point(0.5, 0.5);
+                ($this.sprites as any).guide.interactive = true;
+                ($this.sprites as any).guide.filters = [this.filterBackground];
+                ($this.sprites as any).guide.on("pointerdown", (e) => {
+                    // $this.ContainerGuide.removeChild(($this.sprites as any).guide);
+                    $this.ContainerGuide.destroy({children:true})
+                });
+
+                ($this.sprites as any).guide.mouseover = function () {
+
+                };
+                ($this.sprites as any).guide.mouseout = function() {
+                    return ($this.options as any).onMouseOutBackground(location);
+                };
+                /*($this.sprites as any).background.mousemove = function () {
+                    $this.addColorToBackground();
+                    return ($this.options as any).onMouseMoveBackground(location);
+                };*/
+                $this.stage.addChild($this.ContainerGuide);
+                $this.ContainerGuide.addChild(($this.sprites as any).guide);
+            }
+        }
+
     }
 
     private addLocations(){
@@ -324,7 +363,7 @@ class Zoomer extends PIXI.Application {
         const y = d3.event.transform.y;
         const k = d3.event.transform.k;
         $this.zoomTrans = d3.event.transform;
-        console.dir($this.zoomTrans);
+        // console.dir($this.zoomTrans);
 
         // console.dir(d3.event.transform);
         // let translate = "translate(" + d3.event.translate + ")";
@@ -522,10 +561,12 @@ class Zoomer extends PIXI.Application {
         if (ratio > 1) {
             ratio = 1;
         }
-        $this.Container.scale.x =
-            $this.Container.scale.y =
-                $this.ContainerButtons.scale.x =
-                    $this.ContainerButtons.scale.y = ratio;
+        $this.Container.scale.x = ratio;
+        $this.Container.scale.y = ratio;
+        $this.ContainerButtons.scale.x = ratio;
+        $this.ContainerButtons.scale.y = ratio;
+        $this.ContainerGuide.scale.x= ratio;
+        $this.ContainerGuide.scale.y = ratio;
         // ($this.sprites as any).searchIcon.x = ($this as any).width - 150;
         // ($this.sprites as any).searchIcon.y = 50;
         // ($this.sprites as any).fulscreenIcon.x = ($this as any).width - 150;
