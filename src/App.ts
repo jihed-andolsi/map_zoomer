@@ -273,7 +273,7 @@ class Zoomer extends PIXI.Application {
         $this.heightCanvas = $this.canvas.property("height");
 
         $this.zoomHandler = d3.zoom()
-            .scaleExtent([1, 3])
+            .scaleExtent([.7, 3])
             .translateExtent([[0, 0], [$this.widthExtentMaximum, $this.heightExtentMaximum]])
             .on("start", () => {
                 return $this.startZoomActions($this);
@@ -310,6 +310,8 @@ class Zoomer extends PIXI.Application {
                 scalInit = (this.options as any).initialDataMobile.k;
             }
         }
+
+        // initX = $this.width - $this.background.width
         $this.canvas.call($this.zoomHandler).call($this.zoomHandler.transform, d3.zoomIdentity.translate(initX, initY).scale(scalInit));
         $this.canvas.on("click", () => {
             // const x = (d3.event.x - $this.zoomTrans.x) / $this.zoomTrans.k;
@@ -322,7 +324,7 @@ class Zoomer extends PIXI.Application {
         const y = d3.event.transform.y;
         const k = d3.event.transform.k;
         $this.zoomTrans = d3.event.transform;
-        // console.dir($this.zoomTrans);
+        console.dir($this.zoomTrans);
 
         // console.dir(d3.event.transform);
         // let translate = "translate(" + d3.event.translate + ")";
