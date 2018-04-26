@@ -18,6 +18,8 @@ class Zoomer extends PIXI.Application {
     private filterBackground = new PIXI.filters.ColorMatrixFilter();
     private width: number;
     private height: number;
+    private widthExtent: number;
+    private heightExtent: number;
     private widthExtentMaximum: number;
     private heightExtentMaximum: number;
     private selector;
@@ -61,13 +63,20 @@ class Zoomer extends PIXI.Application {
         (this.options as any).width = width;
         (this.options as any).height = height;
         this.Container.zIndex = 0;
+        // this.Container.anchor = new PIXI.Point(0.5, 0.5);
+
         this.ContainerButtons.zIndex = 1;
         this.ContainerGuide.zIndex = 2;
-
         this.width = (this.options as any).width;
         this.height = (this.options as any).height;
+        /*if (isMobile() || (this.options as any).fullSizeShow) {
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
+        }*/
         this.widthExtentMaximum = (this.options as any).widthExtentMaximum(this.width);
         this.heightExtentMaximum = (this.options as any).heightExtentMaximum(this.height);
+        this.widthExtent = (this.options as any).widthExtent(this.width);
+        this.heightExtent = (this.options as any).heightExtent(this.height);
         this.selector = (this.options as any).selectorId;
         this.isMobile = isMobile();
         this.appendView();
@@ -108,8 +117,8 @@ class Zoomer extends PIXI.Application {
             $this.addLocations();
             $this.addProject();
             $this.addButtons();
-            $this.initZoomAction();
             $this.addPowredBy();
+            $this.initZoomAction();
             $this.resizeCanvas();
             $this.addTicker();
             callback();
@@ -120,9 +129,9 @@ class Zoomer extends PIXI.Application {
         if (($this.sprites as any).background.interactive) {
             $this.Container.removeChild(($this.sprites as any).background)
         }
-        ($this.sprites as any).background.x = 0;
-        ($this.sprites as any).background.y = 0;
-        // ($this.sprites as any).background.anchor = new PIXI.Point(0.5, 0.5);
+        ($this.sprites as any).background.x = $this.width / 2;
+        ($this.sprites as any).background.y = $this.height / 2;
+        ($this.sprites as any).background.anchor = new PIXI.Point(0.5, 0.5);
         ($this.sprites as any).background.interactive = true;
         ($this.sprites as any).background.filters = [this.filterBackground];
 
@@ -138,7 +147,7 @@ class Zoomer extends PIXI.Application {
                 const yD3 = $this.getD3Y(y);
                 $this.newGraphic.push([xD3, yD3]);
 
-                // console.dir($this.newGraphic);
+                console.dir($this.newGraphic);
 
                 $this.Container.removeChild($this.newGraphicObj[$this._counterGraphic]);
                 $this.newGraphicObj[$this._counterGraphic] = $this.createGraph($this.newGraphic);
@@ -219,6 +228,7 @@ class Zoomer extends PIXI.Application {
 
     private drawLocation(location){
         const $this = this;
+        let ContainerLocation = new PIXI.Container();
         let {x, y} = location.point;
         let y_difference = 30;
         const locationPoint = new PIXI.Graphics();
@@ -263,19 +273,31 @@ class Zoomer extends PIXI.Application {
 
         text.interactive = true;
         text.buttonMode = true;
-        locationPoint.mouseover = function () {
+        /*
+
+        locationBigPoint.mouseover = function () {
             $this.removeColorFromBackground();
             return ($this.options as any).onMouseOverLocation(location);
         }
-        locationPoint.mouseout = function () {
+        locationBigPoint.mouseout = function () {
+            return ($this.options as any).onMouseOutLocation(location);
+        }*/
+
+        ContainerLocation.addChild(locationBigPoint);
+        ContainerLocation.addChild(locationPoint);
+        ContainerLocation.addChild(text);
+        ContainerLocation.interactive = true;
+        ContainerLocation.mouseover = function () {
+            $this.removeColorFromBackground();
+            return ($this.options as any).onMouseOverLocation(location);
+        }
+        ContainerLocation.mouseout = function () {
             return ($this.options as any).onMouseOutLocation(location);
         }
-        $this.Container.addChild(locationBigPoint);
-        $this.Container.addChild(locationPoint);
-        $this.Container.addChild(text);
-        $this.locations.push([locationBigPoint, locationPoint, text]);
 
+        $this.Container.addChild(ContainerLocation);
 
+        $this.locations.push([locationBigPoint, locationPoint, text, ContainerLocation]);
         this.tweenLocations(locationBigPoint, {y: -y_difference }, {y: y+y_difference});
         this.tweenLocations(locationPoint, {y: -y_difference }, {y: y+y_difference});
         this.tweenLocations(text, { y: -y_difference },{ y: y_text });
@@ -325,7 +347,7 @@ class Zoomer extends PIXI.Application {
 
         $this.zoomHandler = d3.zoom()
             .scaleExtent([.7, 3])
-            .translateExtent([[0, 0], [$this.widthExtentMaximum, $this.heightExtentMaximum]])
+            .translateExtent([[$this.widthExtent, $this.heightExtent], [$this.widthExtentMaximum, $this.heightExtentMaximum]])
             .on("start", () => {
                 return $this.startZoomActions($this);
             })
@@ -343,27 +365,15 @@ class Zoomer extends PIXI.Application {
 
     private initZommActionFunctionalities() {
         const $this = this;
-        let initX = 0;
-        let initY = 0;
-        let scalInit = 1;
+        let data = {k:1, x: 0, y:0};
         if ((this.options as any).hasOwnProperty("initialData")) {
-            initX = (this.options as any).initialData.x;
-            initY = (this.options as any).initialData.y;
-            scalInit = (this.options as any).initialData.k;
+            data = (this.options as any).initialData($this.width, $this.height);
         }
         if (isMobile()) {
-            scalInit = 1;
-            initY = -$this.height / 2;
-            initX = -$this.width / 2;
-            if ((this.options as any).hasOwnProperty("initialDataMobile")) {
-                initX = (this.options as any).initialDataMobile.x;
-                initY = (this.options as any).initialDataMobile.y;
-                scalInit = (this.options as any).initialDataMobile.k;
-            }
+            data = (this.options as any).initialDataMobile($this.width, $this.height);
         }
-
         // initX = $this.width - $this.background.width
-        $this.canvas.call($this.zoomHandler).call($this.zoomHandler.transform, d3.zoomIdentity.translate(initX, initY).scale(scalInit));
+        $this.canvas.call($this.zoomHandler).call($this.zoomHandler.transform, d3.zoomIdentity.translate(data.x, data.y).scale(data.k));
         $this.canvas.on("click", () => {
             // const x = (d3.event.x - $this.zoomTrans.x) / $this.zoomTrans.k;
             // const y = (d3.event.y - $this.zoomTrans.y) / $this.zoomTrans.k;
@@ -565,8 +575,8 @@ class Zoomer extends PIXI.Application {
 
     public rendererResize($this) {
         if (isMobile() || (this.options as any).fullSizeShow) {
-            $this.width = window.innerWidth;
-            $this.height = window.innerHeight;
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
         }
         let ratio = Math.min(window.innerWidth / $this.width,
             window.innerHeight / $this.height);
