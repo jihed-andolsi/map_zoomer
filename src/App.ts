@@ -97,6 +97,7 @@ class Zoomer extends PIXI.Application {
         $this.stage.addChild(text);
 
         $this.stage.addChild($this.Container);
+
         (this.options as any).sprites.forEach((e) => {
             $this.Customloader.add(e.name, e.url);
         });
@@ -119,6 +120,7 @@ class Zoomer extends PIXI.Application {
             $this.addLocations();
             $this.addProject();
             $this.addProjectItem();
+            $this.Container.addChild($this.containerProjectItems);
             $this.addButtons();
             $this.addPowredBy();
             $this.initZoomAction();
@@ -217,17 +219,19 @@ class Zoomer extends PIXI.Application {
         let graph = this.createGraph(project.coords);
         if(graph){
             graph.interactive = true;
+            graph.alpha = 0;
+
             graph.mouseover = function () {
                 $this.removeColorFromBackground();
-                graph.alpha = .9;
+                // graph.alpha = .9;
                 return ($this.options as any).onMouseOverPoject(project);
             };
             graph.mouseout = function() {
                 $this.addColorToBackground();
-                graph.alpha = .7;
+                // graph.alpha = .7;
                 return ($this.options as any).onMouseOutProject(project);
             };
-            this.Container.addChild(graph);
+            $this.containerProjectItems.addChild(graph);
         }
 
     }
@@ -251,22 +255,18 @@ class Zoomer extends PIXI.Application {
                         sprite.anchor = new PIXI.Point(0.5, 0.5);
                         (rotation) ? sprite.rotation = rotation : false;
                         sprite.mouseover = function () {
-                            $this.removeColorFromBackground();
                             sprite.alpha = 1;
                             return ($this.options as any).onMouseOverPojectItem(element);
                         };
                         sprite.mouseout = function() {
-                            $this.addColorToBackground();
                             sprite.alpha = 1;
                             return ($this.options as any).onMouseOutProjectItem(element);
                         };
                         $this.containerProjectItems.addChild(sprite);
-
                     }
                 })
             }
         }
-        $this.Container.addChild($this.containerProjectItems);
     }
 
     private drawLocation(location){
