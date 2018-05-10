@@ -15,6 +15,7 @@ class Zoomer extends PIXI.Application {
     private Container = new PIXI.Container();
     private ContainerButtons = new PIXI.Container();
     private ContainerGuide = new PIXI.Container();
+    private containerProjectItems = new PIXI.Container();
     private filterBackground = new PIXI.filters.ColorMatrixFilter();
     private width: number;
     private height: number;
@@ -46,6 +47,7 @@ class Zoomer extends PIXI.Application {
     private locations/*: object[]*/ = [];
     private locationsAlpha = .5;
     private locationsMakeAlphaBigger: boolean = true;
+
 
     constructor(width, height, options) {
         super(width, height, options);
@@ -116,6 +118,7 @@ class Zoomer extends PIXI.Application {
             $this.addGuide();
             $this.addLocations();
             $this.addProject();
+            $this.addProjectItem();
             $this.addButtons();
             $this.addPowredBy();
             $this.initZoomAction();
@@ -129,9 +132,9 @@ class Zoomer extends PIXI.Application {
         if (($this.sprites as any).background.interactive) {
             $this.Container.removeChild(($this.sprites as any).background)
         }
-        ($this.sprites as any).background.x = $this.width / 2;
-        ($this.sprites as any).background.y = $this.height / 2;
-        ($this.sprites as any).background.anchor = new PIXI.Point(0.5, 0.5);
+        ($this.sprites as any).background.x = 0;
+        ($this.sprites as any).background.y = 0;
+        // ($this.sprites as any).background.anchor = new PIXI.Point(0.5, 0.5);
         ($this.sprites as any).background.interactive = true;
         ($this.sprites as any).background.filters = [this.filterBackground];
 
@@ -212,18 +215,58 @@ class Zoomer extends PIXI.Application {
         const $this = this;
         let project = (this.options as any).project;
         let graph = this.createGraph(project.coords);
-        graph.interactive = true;
-        graph.mouseover = function () {
-            $this.removeColorFromBackground();
-            graph.alpha = .9;
-            return ($this.options as any).onMouseOverPoject(project);
-        };
-        graph.mouseout = function() {
-            $this.addColorToBackground();
-            graph.alpha = .7;
-            return ($this.options as any).onMouseOutProject(project);
-        };
-        this.Container.addChild(graph);
+        if(graph){
+            graph.interactive = true;
+            graph.mouseover = function () {
+                $this.removeColorFromBackground();
+                graph.alpha = .9;
+                return ($this.options as any).onMouseOverPoject(project);
+            };
+            graph.mouseout = function() {
+                $this.addColorToBackground();
+                graph.alpha = .7;
+                return ($this.options as any).onMouseOutProject(project);
+            };
+            this.Container.addChild(graph);
+        }
+
+    }
+    private addProjectItem(){
+        const $this = this;
+        const options = (this.options as any);
+        const sprites = ($this.sprites as any);
+        if(options.hasOwnProperty("projectItems")){
+            const projectItems = options.projectItems;
+            if(projectItems.length){
+                projectItems.map((element) => {
+                    const picture = element.picture;
+                    const coords = element.coords;
+                    const rotation = element.hasOwnProperty("rotation") ? element.rotation : 0;
+                    if(sprites.hasOwnProperty(picture)){
+                        const sprite = ($this.sprites as any)[picture];
+                        sprite.interactive = true;
+                        sprite.x = coords.x;
+                        sprite.y = coords.y;
+                        sprite.alpha = 1;
+                        sprite.anchor = new PIXI.Point(0.5, 0.5);
+                        (rotation) ? sprite.rotation = rotation : false;
+                        sprite.mouseover = function () {
+                            $this.removeColorFromBackground();
+                            sprite.alpha = 1;
+                            return ($this.options as any).onMouseOverPojectItem(element);
+                        };
+                        sprite.mouseout = function() {
+                            $this.addColorToBackground();
+                            sprite.alpha = 1;
+                            return ($this.options as any).onMouseOutProjectItem(element);
+                        };
+                        $this.containerProjectItems.addChild(sprite);
+
+                    }
+                })
+            }
+        }
+        $this.Container.addChild($this.containerProjectItems);
     }
 
     private drawLocation(location){
@@ -393,6 +436,10 @@ class Zoomer extends PIXI.Application {
         // $this.canvas.attr("transform", translate + scale);
         $this.Container.scale.set(k);
         $this.Container.position.set(x, y);
+
+        // ($this.sprites as any).background.x = x;
+        // ($this.sprites as any).background.y = y;
+
     }
 
     private startZoomActions($this) {
@@ -499,7 +546,7 @@ class Zoomer extends PIXI.Application {
                 }
                 const newGraphicObj = new PIXI.Graphics();
                 newGraphicObj.beginFill(color, opacity);
-                newGraphicObj.lineStyle(3, 0x000000, opacity);
+                newGraphicObj.lineStyle(2, 0xffffff, opacity);
                 let firstCoord = [];
                 coords.map((e) => {
                     const [x, y] = e;
@@ -574,9 +621,9 @@ class Zoomer extends PIXI.Application {
     }
 
     public rendererResize($this) {
-        if (isMobile() || (this.options as any).fullSizeShow) {
-            this.width = window.innerWidth;
-            this.height = window.innerHeight;
+        if (isMobile() || ($this.options as any).fullSizeShow) {
+            $this.width = window.innerWidth;
+            $this.height = window.innerHeight;
         }
         let ratio = Math.min(window.innerWidth / $this.width,
             window.innerHeight / $this.height);
