@@ -99,11 +99,11 @@
                         ]
                     },
                     projectItems: [
-                        {"name": "item 1", "picture": "item_1", "coords":{x: 1983, y: 844}},
-                        {"name": "item 2", "picture": "item_2", "coords":{x: 2136, y: 801}},
-                        {"name": "item 3", "picture": "item_3", "coords":{x: 2268, y: 871}},
-                        {"name": "item 4", "picture": "item_4", "coords":{x: 2174, y: 951}},
-                        {"name": "TunisBay", "picture": "item_tunis_bay", "coords":{x: 2143, y: 871}, "rotation": 0.5},
+                        {"name": "item 1", "sprite": "item_1", "coords":{x: 1983, y: 844}},
+                        {"name": "item 2", "sprite": "item_2", "coords":{x: 2136, y: 801}},
+                        {"name": "item 3", "sprite": "item_3", "coords":{x: 2268, y: 871}},
+                        {"name": "item 4", "sprite": "item_4", "coords":{x: 2174, y: 951}},
+                        {"name": "TunisBay", "sprite": "item_tunis_bay", "coords":{x: 2143, y: 871}, "rotation": 0.5},
                     ],
                     widthExtent: function(width){
                         return 0;
@@ -170,18 +170,18 @@
                     },
                     onMouseOverPoject: function(element){
                         // console.log('onMouseOverLocation');
-
+                        /*
                         $("#container_map canvas").tooltip({
                             track: true,
                             context: function () {
                                 return ' ';
                             },
                         }).tooltip("option", "content", element.name).tooltip( "enable" );
-                        $('.ui-tooltip').show();
+                        $('.ui-tooltip').show();*/
                     },
                     onMouseOutProject: function(element){
                         // console.log('onMouseOutLocation');
-                        $('.ui-tooltip').hide();
+                        // $('.ui-tooltip').hide();
                     },
                     onMouseOverPojectItem: function(element){
                         // console.log('onMouseOverLocation');

@@ -239,7 +239,7 @@ class Zoomer extends PIXI.Application {
             const projectItems = options.projectItems;
             if(projectItems.length){
                 projectItems.map((element) => {
-                    const picture = element.picture;
+                    const picture = element.sprite;
                     const coords = element.coords;
                     const rotation = element.hasOwnProperty("rotation") ? element.rotation : 0;
                     if(sprites.hasOwnProperty(picture)){
