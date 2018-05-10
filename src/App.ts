@@ -231,6 +231,18 @@ class Zoomer extends PIXI.Application {
                 // graph.alpha = .7;
                 return ($this.options as any).onMouseOutProject(project);
             };
+            graph.touchstart = function(){
+                project.dataTranslate = $this.zoomTrans;
+            };
+            graph.click = graph.tap = function() {
+                if($this.isMobile){
+                    if(project.dataTranslate == $this.zoomTrans){
+                        return ($this.options as any).onClickItem(location);
+                    }
+                } else {
+                    return ($this.options as any).onClickItem(location);
+                }
+            };
             $this.containerProjectItems.addChild(graph);
         }
 
@@ -252,6 +264,7 @@ class Zoomer extends PIXI.Application {
                         sprite.x = coords.x;
                         sprite.y = coords.y;
                         sprite.alpha = 1;
+                        sprite.buttonMode = 1;
                         sprite.anchor = new PIXI.Point(0.5, 0.5);
                         (rotation) ? sprite.rotation = rotation : false;
                         sprite.mouseover = function () {
@@ -261,6 +274,18 @@ class Zoomer extends PIXI.Application {
                         sprite.mouseout = function() {
                             sprite.alpha = 1;
                             return ($this.options as any).onMouseOutProjectItem(element);
+                        };
+                        sprite.touchstart = function(){
+                            element.dataTranslate = $this.zoomTrans;
+                        };
+                        sprite.click = sprite.tap = function() {
+                            if($this.isMobile){
+                                if(element.dataTranslate == $this.zoomTrans){
+                                    return ($this.options as any).onClickItem(element);
+                                }
+                            } else {
+                                return ($this.options as any).onClickItem(element);
+                            }
                         };
                         $this.containerProjectItems.addChild(sprite);
                     }
@@ -337,6 +362,19 @@ class Zoomer extends PIXI.Application {
         ContainerLocation.mouseout = function () {
             return ($this.options as any).onMouseOutLocation(location);
         }
+
+        ContainerLocation.touchstart = function(){
+            location.dataTranslate = $this.zoomTrans;
+        };
+        ContainerLocation.click = ContainerLocation.tap = function() {
+            if($this.isMobile){
+                if(location.dataTranslate == $this.zoomTrans){
+                    return ($this.options as any).onClickItem(location);
+                }
+            } else {
+                return ($this.options as any).onClickItem(location);
+            }
+        };
 
         $this.Container.addChild(ContainerLocation);
 
