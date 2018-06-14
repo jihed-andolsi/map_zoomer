@@ -672,8 +672,7 @@ class Zoomer extends PIXI.Application {
         $this.Container.scale.y = ratio;
         $this.ContainerButtons.scale.x = ratio;
         $this.ContainerButtons.scale.y = ratio;
-        $this.ContainerGuide.scale.x= ratio;
-        $this.ContainerGuide.scale.y = ratio;
+
         // ($this.sprites as any).searchIcon.x = ($this as any).width - 150;
         // ($this.sprites as any).searchIcon.y = 50;
         // ($this.sprites as any).fulscreenIcon.x = ($this as any).width - 150;
@@ -685,6 +684,19 @@ class Zoomer extends PIXI.Application {
         let width = Math.ceil($this.width * ratio);
         let height = Math.ceil($this.height * ratio);
         $this.renderer.resize(width, height);
+        if($this.options.hasOwnProperty('showGuide')) {
+            if (($this.options as any).showGuide) {
+                ($this.sprites as any).guide.x = width / 2;
+                ($this.sprites as any).guide.y = height / 2;
+                //($this.sprites as any).scale.x = ratio;
+                //($this.sprites as any).scale.y = ratio;
+                $this.ContainerGuide.scale.x = ratio;
+                $this.ContainerGuide.scale.y = ratio;
+                if (($this.sprites).guide.width > width) {
+                    ($this.sprites).guide.width = width;
+                }
+            }
+        }
         $this.canvas.call($this.zoomHandler).call($this.zoomHandler.transform, d3.zoomIdentity.translate($this.zoomTrans.x, $this.zoomTrans.y).scale($this.zoomTrans.k));
 
     };
