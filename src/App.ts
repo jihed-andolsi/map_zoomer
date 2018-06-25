@@ -2,12 +2,12 @@ require("./Assets/css/_custom.scss");
 require("./Assets/css/main.css");
 let $ = (window as any).$;
 import * as PIXI from "pixi.js";
+
 let tweenManager = require("pixi-tween");
 import * as d3 from "d3";
 import Button from "./Tools/Button";
 import LoaderText from "./Tools/LoaderText";
 import {isMobile} from "./Tools/DeviceDetect";
-
 
 
 class Zoomer extends PIXI.Application {
@@ -47,13 +47,14 @@ class Zoomer extends PIXI.Application {
     private locations/*: object[]*/ = [];
     private locationsAlpha = .5;
     private locationsMakeAlphaBigger: boolean = true;
-
+    private move = true;
 
     constructor(width, height, options) {
         super(width, height, options);
 
     }
-    public init(options, callback){
+
+    public init(options, callback) {
         this.options = options;
         let [width, height] = (this.options as any).size;
         if (isMobile()) {
@@ -84,6 +85,7 @@ class Zoomer extends PIXI.Application {
         this.appendView();
         this.setup(callback);
     }
+
     private appendView() {
         const $this = this;
         document.getElementById($this.selector).appendChild($this.view);
@@ -129,6 +131,7 @@ class Zoomer extends PIXI.Application {
             callback();
         });
     }
+
     private addBackground() {
         const $this = this;
         if (($this.sprites as any).background.interactive) {
@@ -164,7 +167,7 @@ class Zoomer extends PIXI.Application {
             $this.addColorToBackground();
             return ($this.options as any).onMouseOverBackground(location);
         };
-        ($this.sprites as any).background.mouseout = function() {
+        ($this.sprites as any).background.mouseout = function () {
             return ($this.options as any).onMouseOutBackground(location);
         };
         /*($this.sprites as any).background.mousemove = function () {
@@ -174,24 +177,24 @@ class Zoomer extends PIXI.Application {
         $this.Container.addChild(($this.sprites as any).background);
     }
 
-    private addGuide(){
+    private addGuide() {
         const $this = this;
-        if($this.options.hasOwnProperty('showGuide')){
-            if(($this.options as any).showGuide){
-                ($this.sprites as any).guide.x = $this.width/2;
+        if ($this.options.hasOwnProperty('showGuide')) {
+            if (($this.options as any).showGuide) {
+                ($this.sprites as any).guide.x = $this.width / 2;
                 ($this.sprites as any).guide.y = $this.height / 2;
                 ($this.sprites as any).guide.anchor = new PIXI.Point(0.5, 0.5);
                 ($this.sprites as any).guide.interactive = true;
                 ($this.sprites as any).guide.filters = [this.filterBackground];
                 ($this.sprites as any).guide.on("pointerdown", (e) => {
                     // $this.ContainerGuide.removeChild(($this.sprites as any).guide);
-                    $this.ContainerGuide.destroy({children:true})
+                    $this.ContainerGuide.destroy({children: true})
                 });
 
                 ($this.sprites as any).guide.mouseover = function () {
 
                 };
-                ($this.sprites as any).guide.mouseout = function() {
+                ($this.sprites as any).guide.mouseout = function () {
                     return ($this.options as any).onMouseOutBackground(location);
                 };
                 /*($this.sprites as any).background.mousemove = function () {
@@ -205,7 +208,7 @@ class Zoomer extends PIXI.Application {
 
     }
 
-    private addLocations(){
+    private addLocations() {
         let $this = this;
         (this.options as any).locations.map((e) => {
             this.drawLocation(e);
@@ -213,11 +216,12 @@ class Zoomer extends PIXI.Application {
             // $this.drawCircle(x, y);
         });
     }
-    private addProject(){
+
+    private addProject() {
         const $this = this;
         let project = (this.options as any).project;
         let graph = this.createGraph(project.coords);
-        if(graph){
+        if (graph) {
             graph.interactive = true;
             graph.alpha = 0;
 
@@ -226,19 +230,19 @@ class Zoomer extends PIXI.Application {
                 // graph.alpha = .9;
                 return ($this.options as any).onMouseOverPoject(project);
             };
-            graph.mouseout = function() {
+            graph.mouseout = function () {
                 $this.addColorToBackground();
                 // graph.alpha = .7;
                 return ($this.options as any).onMouseOutProject(project);
             };
-            graph.touchstart = function(){
+            graph.touchstart = function () {
                 project.dataTranslate = $this.zoomTrans;
             };
-            graph.click = graph.tap = function() {
-                if($this.isMobile){
-                    if(project.dataTranslate == $this.zoomTrans){
+            graph.click = graph.tap = function () {
+                if ($this.isMobile) {
+                    //if (project.dataTranslate == $this.zoomTrans) {
                         return ($this.options as any).onClickItem(location);
-                    }
+                    //}
                 } else {
                     return ($this.options as any).onClickItem(location);
                 }
@@ -247,18 +251,19 @@ class Zoomer extends PIXI.Application {
         }
 
     }
-    private addProjectItem(){
+
+    private addProjectItem() {
         const $this = this;
         const options = (this.options as any);
         const sprites = ($this.sprites as any);
-        if(options.hasOwnProperty("projectItems")){
+        if (options.hasOwnProperty("projectItems")) {
             const projectItems = options.projectItems;
-            if(projectItems.length){
+            if (projectItems.length) {
                 projectItems.map((element) => {
                     const picture = element.sprite;
                     const coords = element.coords;
                     const rotation = element.hasOwnProperty("rotation") ? element.rotation : 0;
-                    if(sprites.hasOwnProperty(picture)){
+                    if (sprites.hasOwnProperty(picture)) {
                         const sprite = ($this.sprites as any)[picture];
                         sprite.interactive = true;
                         sprite.x = coords.x;
@@ -271,18 +276,18 @@ class Zoomer extends PIXI.Application {
                             sprite.alpha = 1;
                             return ($this.options as any).onMouseOverPojectItem(element);
                         };
-                        sprite.mouseout = function() {
+                        sprite.mouseout = function () {
                             sprite.alpha = 1;
                             return ($this.options as any).onMouseOutProjectItem(element);
                         };
-                        sprite.touchstart = function(){
+                        sprite.touchstart = function () {
                             element.dataTranslate = $this.zoomTrans;
                         };
-                        sprite.click = sprite.tap = function() {
-                            if($this.isMobile){
-                                if(element.dataTranslate == $this.zoomTrans){
+                        sprite.click = sprite.tap = function () {
+                            if ($this.isMobile) {
+                                //if (element.dataTranslate == $this.zoomTrans) {
                                     return ($this.options as any).onClickItem(element);
-                                }
+                                //}
                             } else {
                                 return ($this.options as any).onClickItem(element);
                             }
@@ -294,7 +299,7 @@ class Zoomer extends PIXI.Application {
         }
     }
 
-    private drawLocation(location){
+    private drawLocation(location) {
         const $this = this;
         let ContainerLocation = new PIXI.Container();
         let {x, y} = location.point;
@@ -330,7 +335,7 @@ class Zoomer extends PIXI.Application {
             // dropShadowDistance: 6,
             wordWrap: true,
             wordWrapWidth: 200,
-            align : 'center'
+            align: 'center'
         });
         let text = new PIXI.Text(location.name, "arial");
         text.anchor = new PIXI.Point(0.5, 0.5);
@@ -363,35 +368,51 @@ class Zoomer extends PIXI.Application {
             return ($this.options as any).onMouseOutLocation(location);
         }
 
-        ContainerLocation.touchstart = function(){
+        ContainerLocation.touchstart = function () {
             location.dataTranslate = $this.zoomTrans;
+            return ($this.options as any).onMouseOverLocation(location);
         };
-        ContainerLocation.click = ContainerLocation.tap = function() {
-            if($this.isMobile){
-                if(location.dataTranslate == $this.zoomTrans){
-                    return ($this.options as any).onClickItem(location);
-                }
+        ContainerLocation.touchend = function () {
+            return ($this.options as any).onMouseOverLocation(location);
+        };
+        ContainerLocation.pointerdown = function () {
+            return ($this.options as any).onMouseOverLocation(location);
+        };
+        ContainerLocation.tap = function () {
+            return ($this.options as any).onMouseOverLocation(location);
+        };
+        ContainerLocation.click = ContainerLocation.tap = function () {
+            if ($this.isMobile) {
+                //if(location.dataTranslate == $this.zoomTrans){
+                return ($this.options as any).onClickItem(location);
+                //}
             } else {
                 return ($this.options as any).onClickItem(location);
             }
         };
-
+        ContainerLocation.zIndex = 3;
+        ContainerLocation.on("touchstart", () => {
+            return ($this.options as any).onMouseOverLocation(location);
+        })
         $this.Container.addChild(ContainerLocation);
 
         $this.locations.push([locationBigPoint, locationPoint, text, ContainerLocation]);
-        this.tweenLocations(locationBigPoint, {y: -y_difference }, {y: y+y_difference});
-        this.tweenLocations(locationPoint, {y: -y_difference }, {y: y+y_difference});
-        this.tweenLocations(text, { y: -y_difference },{ y: y_text });
+        this.tweenLocations(locationBigPoint, {y: -y_difference}, {y: y + y_difference});
+        this.tweenLocations(locationPoint, {y: -y_difference}, {y: y + y_difference});
+        this.tweenLocations(text, {y: -y_difference}, {y: y_text});
     }
-    private tweenLocations(obj, pointFrom, pointTo){
+
+    private tweenLocations(obj, pointFrom, pointTo) {
         const tween = PIXI.tweenManager.createTween(obj);
         tween.from(pointFrom).to(pointTo)
         tween.time = 500;
         // tween.repeat = 10;
-        tween.on('start', () => { /*.log('tween started')*/ });
+        tween.on('start', () => { /*.log('tween started')*/
+        });
         // tween.on('repeat', ( loopCount ) => { console.log('loopCount: ' + loopCount) });
         tween.start();
     }
+
     private addPowredBy() {
         const $this = this;
         let style = new PIXI.TextStyle({
@@ -425,6 +446,22 @@ class Zoomer extends PIXI.Application {
         $this.context = $this.canvas.node().getContext("2d");
         $this.widthCanvas = $this.canvas.property("width");
         $this.heightCanvas = $this.canvas.property("height");
+        /*let touch_status = function(){
+            console.log("touch start");
+            d3.event.preventDefault();
+            d3.event.stopPropagation();
+            const d = d3.touches(this);
+            console.dir(d);
+        }
+        $this.canvas.on("touchstart", () => {
+            $this.move = false;
+        });
+        $this.canvas.on("touchmove", () => {
+            $this.move = true;
+        })
+        $this.canvas.on("touchend", () => {
+            $this.move = false;
+        });*/
 
         $this.zoomHandler = d3.zoom()
             .scaleExtent([.7, 3])
@@ -446,7 +483,7 @@ class Zoomer extends PIXI.Application {
 
     private initZommActionFunctionalities() {
         const $this = this;
-        let data = {k:1, x: 0, y:0};
+        let data = {k: 1, x: 0, y: 0};
         if ((this.options as any).hasOwnProperty("initialData")) {
             data = (this.options as any).initialData($this.width, $this.height);
         }
@@ -458,6 +495,7 @@ class Zoomer extends PIXI.Application {
         $this.canvas.on("click", () => {
             // const x = (d3.event.x - $this.zoomTrans.x) / $this.zoomTrans.k;
             // const y = (d3.event.y - $this.zoomTrans.y) / $this.zoomTrans.k;
+            console.log("test click");
         });
     }
 
@@ -477,7 +515,6 @@ class Zoomer extends PIXI.Application {
 
         // ($this.sprites as any).background.x = x;
         // ($this.sprites as any).background.y = y;
-
     }
 
     private startZoomActions($this) {
@@ -627,23 +664,23 @@ class Zoomer extends PIXI.Application {
         });
     };
 
-    private addTicker(){
+    private addTicker() {
         let $this = this;
         // Listen for animate update
-        ($this as any).ticker.add(function(delta) {
+        ($this as any).ticker.add(function (delta) {
             // console.log(delta);
             // just for fun, let's rotate mr rabbit a little
             // delta is 1 if running at 100% performance
             // creates frame-independent transformation
             // bunny.rotation += 0.1 * delta;
             let alphaTick = .01;
-            if($this.locationsAlpha + alphaTick > 1){
+            if ($this.locationsAlpha + alphaTick > 1) {
                 $this.locationsMakeAlphaBigger = false;
             }
-            if($this.locationsAlpha - alphaTick < .2){
+            if ($this.locationsAlpha - alphaTick < .2) {
                 $this.locationsMakeAlphaBigger = true;
             }
-            if($this.locationsMakeAlphaBigger){
+            if ($this.locationsMakeAlphaBigger) {
                 $this.locationsAlpha += alphaTick;
             } else {
                 $this.locationsAlpha -= alphaTick;
@@ -672,7 +709,7 @@ class Zoomer extends PIXI.Application {
         $this.Container.scale.y = ratio;
         $this.ContainerButtons.scale.x = ratio;
         $this.ContainerButtons.scale.y = ratio;
-        $this.ContainerGuide.scale.x= ratio;
+        $this.ContainerGuide.scale.x = ratio;
         $this.ContainerGuide.scale.y = ratio;
         // ($this.sprites as any).searchIcon.x = ($this as any).width - 150;
         // ($this.sprites as any).searchIcon.y = 50;
