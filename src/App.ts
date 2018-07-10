@@ -94,7 +94,7 @@ class Zoomer extends PIXI.Application {
     private setup(callback) {
         const $this = this;
         const s = {};
-        const text = new LoaderText(($this as any).width, ($this as any).height);
+        const text = new LoaderText(window.innerWidth, window.innerHeight);
 
         $this.stage.addChild(text);
 
@@ -179,33 +179,34 @@ class Zoomer extends PIXI.Application {
 
     private addGuide() {
         const $this = this;
-        if ($this.options.hasOwnProperty('showGuide')) {
-            if (($this.options as any).showGuide) {
-                ($this.sprites as any).guide.x = $this.width / 2;
-                ($this.sprites as any).guide.y = $this.height / 2;
-                ($this.sprites as any).guide.anchor = new PIXI.Point(0.5, 0.5);
-                ($this.sprites as any).guide.interactive = true;
-                ($this.sprites as any).guide.filters = [this.filterBackground];
-                ($this.sprites as any).guide.on("pointerdown", (e) => {
-                    // $this.ContainerGuide.removeChild(($this.sprites as any).guide);
-                    $this.ContainerGuide.destroy({children: true})
-                });
+        if(!$this.isMobile){
+            if ($this.options.hasOwnProperty('showGuide')) {
+                if (($this.options as any).showGuide) {
+                    ($this.sprites as any).guide.x = $this.width / 2;
+                    ($this.sprites as any).guide.y = $this.height / 2;
+                    ($this.sprites as any).guide.anchor = new PIXI.Point(0.5, 0.5);
+                    ($this.sprites as any).guide.interactive = true;
+                    ($this.sprites as any).guide.filters = [this.filterBackground];
+                    ($this.sprites as any).guide.on("pointerdown", (e) => {
+                        // $this.ContainerGuide.removeChild(($this.sprites as any).guide);
+                        $this.ContainerGuide.destroy({children: true})
+                    });
 
-                ($this.sprites as any).guide.mouseover = function () {
+                    ($this.sprites as any).guide.mouseover = function () {
 
-                };
-                ($this.sprites as any).guide.mouseout = function () {
-                    return ($this.options as any).onMouseOutBackground(location);
-                };
-                /*($this.sprites as any).background.mousemove = function () {
-                    $this.addColorToBackground();
-                    return ($this.options as any).onMouseMoveBackground(location);
-                };*/
-                $this.stage.addChild($this.ContainerGuide);
-                $this.ContainerGuide.addChild(($this.sprites as any).guide);
+                    };
+                    ($this.sprites as any).guide.mouseout = function () {
+                        return ($this.options as any).onMouseOutBackground(location);
+                    };
+                    /*($this.sprites as any).background.mousemove = function () {
+                        $this.addColorToBackground();
+                        return ($this.options as any).onMouseMoveBackground(location);
+                    };*/
+                    $this.stage.addChild($this.ContainerGuide);
+                    $this.ContainerGuide.addChild(($this.sprites as any).guide);
+                }
             }
         }
-
     }
 
     private addLocations() {
@@ -722,16 +723,18 @@ class Zoomer extends PIXI.Application {
         let width = Math.ceil($this.width * ratio);
         let height = Math.ceil($this.height * ratio);
         $this.renderer.resize(width, height);
-        if($this.options.hasOwnProperty('showGuide')) {
-            if (($this.options as any).showGuide) {
-                ($this.sprites as any).guide.x = width / 2;
-                ($this.sprites as any).guide.y = height / 2;
-                //($this.sprites as any).scale.x = ratio;
-                //($this.sprites as any).scale.y = ratio;
-                $this.ContainerGuide.scale.x = ratio;
-                $this.ContainerGuide.scale.y = ratio;
-                if (($this.sprites).guide.width > width) {
-                    ($this.sprites).guide.width = width;
+        if(!$this.isMobile) {
+            if ($this.options.hasOwnProperty('showGuide')) {
+                if (($this.options as any).showGuide) {
+                    ($this.sprites as any).guide.x = width / 2;
+                    ($this.sprites as any).guide.y = height / 2;
+                    //($this.sprites as any).scale.x = ratio;
+                    //($this.sprites as any).scale.y = ratio;
+                    $this.ContainerGuide.scale.x = ratio;
+                    $this.ContainerGuide.scale.y = ratio;
+                    if (($this.sprites).guide.width > width) {
+                        ($this.sprites).guide.width = width;
+                    }
                 }
             }
         }
