@@ -39,7 +39,7 @@
     "jquery-ui-dist": "^1.12.1",
     "jquery-ui-themes": "^1.12.0",
     "node-sass": "^4.8.3",
-    "npm": "^5.8.0",
+    "npm": "^6.14.6",
     "pixi-filters": "^2.6.0",
     "pixi-tween": "^0.2.0",
     "pixi-viewport": "^1.4.0",
